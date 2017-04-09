@@ -28,17 +28,18 @@
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef _UART_HEADER_H
-#define	_UART_HEADER_H
+#ifndef DEBUG_H
+#define	DEBUG_H
 
 #include <xc.h> // include processor files - each processor file is guarded.  
 
 // TODO Insert appropriate #include <>
-#define _XTAL_FREQ 1000000      // xtal frequency in Hz
 
 // TODO Insert C++ class definitions if appropriate
 
 // TODO Insert declarations
+void putch(unsigned char);
+void init_debug_uart(void);
 
 // Comment a function and leverage automatic documentation with slash star star
 /**
@@ -64,17 +65,6 @@
 // TODO Insert declarations or function prototypes (right here) to leverage 
 // live documentation
 
-char UART_Init(const long int);
-char UART_TX_Empty();
-char UART_Data_Ready();
-char UART_Read();
-void UART_Read_Text(char *, unsigned int);
-void UART_Write(char);
-void UART_Write_Text(char *);
-
-
-
-
 #ifdef	__cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -86,5 +76,5 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif	/* _UART_HEADER_H */
+#endif	/* DEBUG_H */
 

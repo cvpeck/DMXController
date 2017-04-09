@@ -2,7 +2,6 @@
 
 #include "uart.h"
 
-#define _XTAL_FREQ 1000000      // xtal frequency in Hz
 
 char UART_Init(const long int baudrate)
 {
