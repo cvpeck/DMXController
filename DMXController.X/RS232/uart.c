@@ -60,3 +60,10 @@ void UART_Write_Text(char *text)
   for(i=0;text[i]!='\0';i++)
 	  UART_Write(text[i]);
 }
+
+void UART_Write_NText(char *text, unsigned int length)
+{
+  int i;
+  for(i=0;i<length;i++)
+	  UART_Write(text[i]);
+}

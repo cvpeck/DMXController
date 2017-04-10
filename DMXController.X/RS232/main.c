@@ -14,8 +14,11 @@
 #include "uart.h"
 #include "main.h"
 #include "debug.h"
+#include "commands.h"
 
 #define BAUDRATE 9600
+#define TIMEOUT_DATA 2000 // time in ms before failure assumed
+#define UART_RETRY_TIME 100 // time in ms before retrying UART for data
 
 
 #define EXIT_SUCCESS 0
@@ -23,6 +26,9 @@
 
 #define DATA_HEADER '\x55','\x11'
 #define DATA_HEADER_LENGTH 2
+
+#define COMMAND_LENGTH 1
+
 
 
 
@@ -34,6 +40,8 @@ struct transition {
             ret_codes   ret_code;
             state_codes dst_state;
 };
+
+struct diagnostics diagnostic_options;
 
 
 /* transitions from end state aren't needed */
@@ -57,16 +65,32 @@ struct transition state_transitions[] = {
 int processHeader() {
     char data[DATA_HEADER_LENGTH];
     char data_header[DATA_HEADER_LENGTH] = {DATA_HEADER};
-    
+    unsigned int attempts=0;
     printf("processHeader\n");
-    while (!UART_Data_Ready()) { // TODO add timeout here
-        __delay_ms(100);
+    
+    while (!UART_Data_Ready()) { 
+        __delay_ms(UART_RETRY_TIME);
+        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
     }
     UART_Read_Text(data,DATA_HEADER_LENGTH);
+    if (diagnostic_options.all_echo || diagnostic_options.echo_header) {
+        UART_Write_NText(data,DATA_HEADER_LENGTH);
+    }
     return (strncmp(data,data_header,DATA_HEADER_LENGTH) ? fail : ok);
 }
 
 int processCommand() {
+    char command=[COMMAND_LENGTH];
+    unsigned int attempts=0;
+
+    while (!UART_Data_Ready()) { 
+        __delay_ms(UART_RETRY_TIME);
+        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
+    }
+    printf("processCommand");
+    UART_Read_Text(command,COMMAND_LENGTH);
+    
+    
     return false;
 }
 
@@ -99,6 +123,10 @@ int main(int argc, char *argv[]) {
     state_codes cur_state = ENTRY_STATE;
     ret_codes rc;
     int (* state_fun)(void);
+    
+
+    
+    initialise_diagnostics(&diagnostic_options);
     
     init_debug_uart();
     

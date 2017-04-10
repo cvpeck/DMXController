@@ -40,6 +40,21 @@
 // TODO Insert declarations
 void putch(unsigned char);
 void init_debug_uart(void);
+void initialise_diagnostics(struct diagnostics *);
+
+
+#define DIAGNOSTICS_ECHO_ALL        false
+#define DIAGNOSTICS_ECHO_HEADER     true
+#define DIAGNOSTICS_ECHO_COMMAND    true
+
+
+struct diagnostics {
+    bool all_echo;
+    bool echo_header;
+    bool echo_command;
+};
+
+
 
 // Comment a function and leverage automatic documentation with slash star star
 /**

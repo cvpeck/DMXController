@@ -8,6 +8,9 @@
 
 #include <xc.h>
 #include <stdbool.h>
+#include "commands.h"
+#include "debug.h"
+
 
 
 void putch(unsigned char data) {
@@ -19,4 +22,11 @@ void putch(unsigned char data) {
 void init_debug_uart(void) {
     TXSTAbits.TXEN = 1;
     RCSTAbits.SPEN = 1;
+}
+
+void initialise_diagnostics(struct diagnostics *diagnostic_options)
+{
+    diagnostic_options->all_echo = DIAGNOSTICS_ECHO_ALL;
+    diagnostic_options->echo_command = DIAGNOSTICS_ECHO_COMMAND;
+    diagnostic_options->echo_header = DIAGNOSTICS_ECHO_HEADER;
 }

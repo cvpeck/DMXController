@@ -7,6 +7,7 @@
       <itemPath>RS232/uart.h</itemPath>
       <itemPath>RS232/main.h</itemPath>
       <itemPath>RS232/debug.h</itemPath>
+      <itemPath>RS232/commands.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
