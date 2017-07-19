@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "uart.h"
 #include "main.h"
@@ -29,6 +30,9 @@
 
 #define COMMAND_LENGTH 1
 
+#define DATA_LENGTH_HEADER 2
+
+#define MAX_DATA_LENGTH 1024
 
 
 
@@ -43,6 +47,30 @@ struct transition {
 
 struct diagnostics diagnostic_options;
 
+unsigned int command;
+
+union {
+ unsigned char c[DATA_HEADER_LENGTH];
+ unsigned int i;
+} data_header_length_u;
+
+union {
+    unsigned char c[COMMAND_LENGTH];
+    unsigned int i;
+} command_u;
+
+
+union {
+ unsigned char c[DATA_LENGTH_HEADER];
+ unsigned int i;
+} data_length_header_u;
+
+//data_length_u.ui = 0xAB;
+// can also access c[0] c[1]]
+
+int data_length;
+
+char data[MAX_DATA_LENGTH];
 
 /* transitions from end state aren't needed */
 struct transition state_transitions[] = {
@@ -63,8 +91,6 @@ struct transition state_transitions[] = {
 #define ENTRY_STATE waitForHeader
 
 int processHeader() {
-    char data[DATA_HEADER_LENGTH];
-    char data_header[DATA_HEADER_LENGTH] = {DATA_HEADER};
     unsigned int attempts=0;
     printf("processHeader\n");
     
@@ -72,15 +98,16 @@ int processHeader() {
         __delay_ms(UART_RETRY_TIME);
         if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
     }
-    UART_Read_Text(data,DATA_HEADER_LENGTH);
+    UART_Read_Text(data_header_length_u.c,DATA_HEADER_LENGTH);
     if (diagnostic_options.all_echo || diagnostic_options.echo_header) {
-        UART_Write_NText(data,DATA_HEADER_LENGTH);
+        UART_Write_NText(data_header_length_u.c,DATA_HEADER_LENGTH);
     }
-    return (strncmp(data,data_header,DATA_HEADER_LENGTH) ? fail : ok);
+    //TODO - no idea what this is doing - needs redoing
+    //return (strncmp(data,data_header,DATA_HEADER_LENGTH) ? fail : ok);
+    return ok;
 }
 
 int processCommand() {
-    char command=[COMMAND_LENGTH];
     unsigned int attempts=0;
 
     while (!UART_Data_Ready()) { 
@@ -88,18 +115,65 @@ int processCommand() {
         if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
     }
     printf("processCommand");
-    UART_Read_Text(command,COMMAND_LENGTH);
+    UART_Read_Text(command_u.c,COMMAND_LENGTH);
+    if (diagnostic_options.all_echo || diagnostic_options.echo_command) {
+        UART_Write_NText(command_u.c,COMMAND_LENGTH);
+    }
     
+    command=command_u.i;
     
-    return false;
+    switch (command) {
+        case CMD__DIAGNOSTICS_ALL_ECHO :
+            diagnostic_options.all_echo = true;
+            return ok;
+            
+        case CMD__DIAGNOSTICS_HEADER_ECHO :
+            diagnostic_options.echo_header = true;
+            return ok;
+            
+        case CMD__DIAGNOSTICS_COMMAND_ECHO :
+            diagnostic_options.echo_command = true;
+            return ok;
+            
+        default :
+            return fail; 
+    }
 }
 
 int processDataLength() {
-    return false;
+    unsigned int attempts=0;
+
+    while (!UART_Data_Ready()) { 
+        __delay_ms(UART_RETRY_TIME);
+        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
+    }
+    
+    printf("processDataLength");
+    UART_Read_Text(data_length_header_u.c,DATA_LENGTH_HEADER);
+    if (diagnostic_options.all_echo || diagnostic_options.echo_data_length) {
+        UART_Write_NText(data_length_header_u.c,DATA_LENGTH_HEADER);
+    }
+    data_length = data_length_header_u.i;
+    //TODO check this comparison is the correct way around
+    return ((data_length < MAX_DATA_LENGTH) ? fail : ok);
 }
 
 int processData() {
-    return false;
+    unsigned int attempts=0;
+
+    while (!UART_Data_Ready()) { 
+        __delay_ms(UART_RETRY_TIME);
+        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
+    }
+    
+    printf("processDataLength");
+    UART_Read_Text(data,data_length);
+    if (diagnostic_options.all_echo || diagnostic_options.echo_data) {
+        UART_Write_NText(data, data_length);
+    }
+    // TODO return fail if length of data read less than data_length
+    // how to check length of data?
+    return ((data < MAX_DATA_LENGTH) ? fail : ok);
 }
 
 int processChecksum() {
@@ -118,12 +192,11 @@ state_codes lookup_transition(state_codes sc, ret_codes rc) {
     return sc;
 }
 
-
 int main(int argc, char *argv[]) {
     state_codes cur_state = ENTRY_STATE;
     ret_codes rc;
     int (* state_fun)(void);
-    
+
 
     
     initialise_diagnostics(&diagnostic_options);
@@ -138,7 +211,6 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
     
-    unsigned char command;
     
             
     for (;;) {

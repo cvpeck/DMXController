@@ -46,12 +46,16 @@ void initialise_diagnostics(struct diagnostics *);
 #define DIAGNOSTICS_ECHO_ALL        false
 #define DIAGNOSTICS_ECHO_HEADER     true
 #define DIAGNOSTICS_ECHO_COMMAND    true
+#define DIAGNOSTICS_ECHO_DATA_LENGTH    true
+#define DIAGNOSTICS_ECHO_DATA       true
 
 
 struct diagnostics {
     bool all_echo;
     bool echo_header;
     bool echo_command;
+    bool echo_data_length;
+    bool echo_data;
 };
 
 
