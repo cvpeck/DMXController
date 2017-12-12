@@ -32,7 +32,7 @@
 
 #define DATA_LENGTH_HEADER 2
 
-#define MAX_DATA_LENGTH 1024
+#define MAX_DATA_LENGTH 64
 
 
 
@@ -171,9 +171,8 @@ int processData() {
     if (diagnostic_options.all_echo || diagnostic_options.echo_data) {
         UART_Write_NText(data, data_length);
     }
-    // TODO return fail if length of data read less than data_length
-    // how to check length of data?
-    return ((data < MAX_DATA_LENGTH) ? fail : ok);
+    // No way of easily checking how much data read.
+    return (ok);
 }
 
 int processChecksum() {
