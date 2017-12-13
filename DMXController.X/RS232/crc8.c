@@ -5,14 +5,9 @@
  * Created on 12 December 2017, 2:49 PM
  */
 
-#include <xc.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "crc8.h"
 
-
-unsigned int CRC_HW_calculateB(unsigned char ser_data)
+unsigned int crc8_update(unsigned char ser_data)
 {
     // Update the CRC for transmitted and received data using
     // the CCITT 16bit algorithm (X^16 + X^12 + X^5 + 1).

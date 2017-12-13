@@ -47,6 +47,10 @@ struct transition {
 
 struct diagnostics diagnostic_options;
 
+
+//TODO create a struct packet containing all the unionss and vars below to represent the data packet structure
+
+
 unsigned int command;
 
 union {
@@ -72,6 +76,8 @@ int data_length;
 
 char data[MAX_DATA_LENGTH];
 
+unsigned int crc;
+
 /* transitions from end state aren't needed */
 struct transition state_transitions[] = {
     {waitForHeader,     ok,     waitForCommand},
@@ -90,93 +96,105 @@ struct transition state_transitions[] = {
 #define EXIT_STATE sendStatus
 #define ENTRY_STATE waitForHeader
 
-int processHeader() {
+bool data_ready()
+{
     unsigned int attempts=0;
-    printf("processHeader\n");
-    
-    while (!UART_Data_Ready()) { 
+    while (!UART_Data_Ready()) {
+        //TODO refactor this so only one return
         __delay_ms(UART_RETRY_TIME);
-        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
+        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return false;
     }
-    UART_Read_Text(data_header_length_u.c,DATA_HEADER_LENGTH);
-    if (diagnostic_options.all_echo || diagnostic_options.echo_header) {
-        UART_Write_NText(data_header_length_u.c,DATA_HEADER_LENGTH);
+    return true;
+}
+
+int processHeader() {
+    printf("processHeader\n");
+    if (data_ready())
+    {
+
+        UART_Read_Text(data_header_length_u.c,DATA_HEADER_LENGTH);
+        if (diagnostic_options.all_echo || diagnostic_options.echo_header) {
+            UART_Write_NText(data_header_length_u.c,DATA_HEADER_LENGTH);
+        }
+        //TODO - no idea what this is doing - needs redoing
+        //return (strncmp(data,data_header,DATA_HEADER_LENGTH) ? fail : ok);
+        return ok;
+    } else {
+        return fail;
     }
-    //TODO - no idea what this is doing - needs redoing
-    //return (strncmp(data,data_header,DATA_HEADER_LENGTH) ? fail : ok);
-    return ok;
 }
 
 int processCommand() {
-    unsigned int attempts=0;
-
-    while (!UART_Data_Ready()) { 
-        __delay_ms(UART_RETRY_TIME);
-        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
-    }
     printf("processCommand");
-    UART_Read_Text(command_u.c,COMMAND_LENGTH);
-    if (diagnostic_options.all_echo || diagnostic_options.echo_command) {
-        UART_Write_NText(command_u.c,COMMAND_LENGTH);
-    }
-    
-    command=command_u.i;
-    
-    switch (command) {
-        case CMD__DIAGNOSTICS_ALL_ECHO :
-            diagnostic_options.all_echo = true;
-            return ok;
-            
-        case CMD__DIAGNOSTICS_HEADER_ECHO :
-            diagnostic_options.echo_header = true;
-            return ok;
-            
-        case CMD__DIAGNOSTICS_COMMAND_ECHO :
-            diagnostic_options.echo_command = true;
-            return ok;
-            
-        default :
-            return fail; 
+    if (data_ready())
+    {
+        UART_Read_Text(command_u.c,COMMAND_LENGTH);
+        if (diagnostic_options.all_echo || diagnostic_options.echo_command) {
+            UART_Write_NText(command_u.c,COMMAND_LENGTH);
+        }
+
+        command=command_u.i;
+
+        switch (command) {
+            case CMD__DIAGNOSTICS_ALL_ECHO :
+                diagnostic_options.all_echo = true;
+                return ok;
+
+            case CMD__DIAGNOSTICS_HEADER_ECHO :
+                diagnostic_options.echo_header = true;
+                return ok;
+
+            case CMD__DIAGNOSTICS_COMMAND_ECHO :
+                diagnostic_options.echo_command = true;
+                return ok;
+
+            default :
+                return fail; 
+        }
+    } else {
+        return fail;
     }
 }
 
 int processDataLength() {
-    unsigned int attempts=0;
-
-    while (!UART_Data_Ready()) { 
-        __delay_ms(UART_RETRY_TIME);
-        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
-    }
-    
     printf("processDataLength");
-    UART_Read_Text(data_length_header_u.c,DATA_LENGTH_HEADER);
-    if (diagnostic_options.all_echo || diagnostic_options.echo_data_length) {
-        UART_Write_NText(data_length_header_u.c,DATA_LENGTH_HEADER);
+    if (data_ready())
+    {
+        UART_Read_Text(data_length_header_u.c,DATA_LENGTH_HEADER);
+        if (diagnostic_options.all_echo || diagnostic_options.echo_data_length) {
+            UART_Write_NText(data_length_header_u.c,DATA_LENGTH_HEADER);
+        }
+        data_length = data_length_header_u.i;
+        //TODO check this comparison is the correct way around
+        return ((data_length < MAX_DATA_LENGTH) ? fail : ok);
+    }else{
+        return fail;
     }
-    data_length = data_length_header_u.i;
-    //TODO check this comparison is the correct way around
-    return ((data_length < MAX_DATA_LENGTH) ? fail : ok);
 }
 
 int processData() {
-    unsigned int attempts=0;
-
-    while (!UART_Data_Ready()) { 
-        __delay_ms(UART_RETRY_TIME);
-        if(++attempts*UART_RETRY_TIME > TIMEOUT_DATA) return fail;
-    }
-    
     printf("processDataLength");
-    UART_Read_Text(data,data_length);
-    if (diagnostic_options.all_echo || diagnostic_options.echo_data) {
-        UART_Write_NText(data, data_length);
+    if (data_ready())
+    {
+        UART_Read_Text(data,data_length);
+        if (diagnostic_options.all_echo || diagnostic_options.echo_data) {
+            UART_Write_NText(data, data_length);
+        }
+        // No way of easily checking how much data read.
+        return (ok);
+    }else{
+        return fail;
     }
-    // No way of easily checking how much data read.
-    return (ok);
 }
 
 int processChecksum() {
-    return false;
+    printf("processChecksum");
+    if (data_ready())
+    {
+        return false;
+    }else{
+        return fail;
+    }
 }
 
 int returnStatus() {
