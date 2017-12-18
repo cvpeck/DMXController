@@ -39,7 +39,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //######################
 //##### INITIALISE #####
 //######################
-/*
+
 	//-----------------------
 	//----- SETUP USART -----
 	//-----------------------
@@ -66,7 +66,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	INTCONbits.PEIE = 1;				//Enable peripheral IRQ's		<<<<< CHECK FOR THIS PIC
 	PIE1bits.RCIE = 1;					//Enable the RX IRQ				<<<<< CHECK FOR THIS PIC
 //<<<<<
-
+/*
 //>>>>> FOR PIC18 EARLIER MODELS e.g. 252 etc
 	TXSTA = 0x64;						//TX enabled, 9bit,  BRGH on (b=2 high)
 	RCSTA = 0xd0;						//Serial port enabled, rx enabled, 9 bit, addr detect off
@@ -80,22 +80,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //################################
 //##### HEARTBEAT 10mS TIMER #####
 //################################
-/*
+
 	//----- DMX TIMEOUT TIMER -----
 	if (dmx_rx_10mS_timeout_timer)
 		dmx_rx_10mS_timeout_timer--;
-*/
+
 
 //#######################
 //##### IRQ HANDLER #####
 //#######################
-/*
+
 	//************************
 	//***** USART RX IRQ *****
 	//************************
 	if(PIE1bits.RCIE && PIR1bits.RCIF)
 		dmx_receive();
-*/
+
 
 //###############################
 //##### APPLICATION GENERAL #####

@@ -96,7 +96,7 @@ typedef struct data_packet_type {
 struct data_packet_type data_packet;
 
 /* transitions from end state aren't needed */
-struct transition state_transitions[] = {
+const struct transition state_transitions[] = {
     {waitForHeader,     ok,     waitForCommand},
     {waitForHeader,     fail,   sendStatus},
     {waitForCommand,    ok,     waitForDataLength},

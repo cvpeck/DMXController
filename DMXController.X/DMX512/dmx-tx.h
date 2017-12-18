@@ -172,9 +172,7 @@ WORD dmx_tx_count;
 
 
 
-#pragma udata dmx_512_byte_ram_section				//This is the PIC C18 compiler command to use the specially defined section in the linker script (uses a modified linker script for this)
 BYTE dmx_tx_buffer[DMX_NO_OF_CHANS_TO_TX];			//(C18 large array requirement to use a special big section of ram defined in the linker script)
-#pragma udata
 //If you are transmitting < 256 channels then you won't need the large memory defintion in the linker script and the #pragma's can be removed
 //Example of definition in the linker script DATABANK NAME=dmx_512_byte_ram_section START=0x700 END=0x8FF
 //See here for how to create this: http://www.electronics-design.net/embedded-programming/microchip-pic/pic18/c18-compiler/memory-2
