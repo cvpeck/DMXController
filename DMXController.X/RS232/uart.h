@@ -64,14 +64,14 @@
 // TODO Insert declarations or function prototypes (right here) to leverage 
 // live documentation
 
-char UART_Init(const long int);
-char UART_TX_Empty();
-char UART_Data_Ready();
-char UART_Read();
-void UART_Read_Text(char *, unsigned int);
-void UART_Write(char);
-void UART_Write_Text(char *);
-void UART_Write_NText(char *, unsigned int);
+unsigned char UART_Init(const long int);
+unsigned char UART_TX_Empty();
+unsigned char UART_Data_Ready();
+unsigned char UART_Read();
+void UART_Read_Text(unsigned char *, unsigned int);
+void UART_Write(unsigned char);
+void UART_Write_Text(unsigned char *);
+void UART_Write_NText(unsigned char *, unsigned int);
 
 
 

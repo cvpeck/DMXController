@@ -26,19 +26,20 @@ char UART_Init(const long int baudrate)
   return 0;                                       //Returns 0 to indicate UART initialization failed
 }
 
-char UART_TX_Empty()
+unsigned char UART_TX_Empty()
 {
-  return TRMT;
+  return (unsigned char) TRMT;
 }
 
-char UART_Data_Ready()
+unsigned char UART_Data_Ready()
 {
-   return RCIF;
+   return (unsigned char)RCIF;
 }
-char UART_Read()
+
+unsigned char UART_Read()
 {
  
-  while(!RCIF);
+   while(!RCIF);
   return RCREG;
 }
 
@@ -48,22 +49,22 @@ void UART_Read_Text(char *Output, unsigned int length)
 		Output[i] = UART_Read();
 }
 
-void UART_Write(char data)
+void UART_Write(unsigned char data)
 {
   while(!TRMT);
   TXREG = data;
 }
 
-void UART_Write_Text(char *text)
+void UART_Write_Text(unsigned char *text)
 {
   int i;
   for(i=0;text[i]!='\0';i++)
 	  UART_Write(text[i]);
 }
 
-void UART_Write_NText(char *text, unsigned int length)
+void UART_Write_NText(unsigned char *text, unsigned int length)
 {
-  int i;
+  unsigned int i;
   for(i=0;i<length;i++)
 	  UART_Write(text[i]);
 }

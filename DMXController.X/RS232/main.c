@@ -14,6 +14,7 @@
 
 #include "uart.h"
 #include "main.h"
+#include "crc8.h"
 #include "debug.h"
 #include "commands.h"
 
@@ -34,10 +35,13 @@
 
 #define MAX_DATA_LENGTH 64
 
+// CRC length in bytes
+#define CRC_LENGTH 2
+
 
 
 /* array and enum below must be in sync! */
-int (* state[])(void) = { processHeader, processCommand, processDataLength, processData, processChecksum, returnStatus};
+int (* state[])(void) = { processHeader, processCommand, processDataLength, processData, processChecksum, sendStatus};
 
 struct transition {   
             state_codes src_state;
@@ -51,32 +55,45 @@ struct diagnostics diagnostic_options;
 //TODO create a struct packet containing all the unionss and vars below to represent the data packet structure
 
 
-unsigned int command;
 
-union {
+typedef union {
  unsigned char c[DATA_HEADER_LENGTH];
  unsigned int i;
-} data_header_length_u;
+} data_header_u;
 
-union {
+typedef union {
     unsigned char c[COMMAND_LENGTH];
     unsigned int i;
 } command_u;
 
 
-union {
+typedef union {
  unsigned char c[DATA_LENGTH_HEADER];
  unsigned int i;
-} data_length_header_u;
+} data_length_u;
+
+typedef union {
+ unsigned char c[CRC_LENGTH];
+ unsigned int i;
+} crc_u;
+
+
 
 //data_length_u.ui = 0xAB;
 // can also access c[0] c[1]]
 
-int data_length;
 
-char data[MAX_DATA_LENGTH];
 
-unsigned int crc;
+
+typedef struct data_packet_type {
+    data_header_u data_header;
+    command_u command;
+    data_length_u data_length;
+    unsigned char data[MAX_DATA_LENGTH];
+    crc_u crc;
+};
+
+struct data_packet_type data_packet;
 
 /* transitions from end state aren't needed */
 struct transition state_transitions[] = {
@@ -108,93 +125,108 @@ bool data_ready()
 }
 
 int processHeader() {
+    int retval=fail;
     printf("processHeader\n");
     if (data_ready())
     {
 
-        UART_Read_Text(data_header_length_u.c,DATA_HEADER_LENGTH);
+        UART_Read_Text(data_packet.data_header.c,DATA_HEADER_LENGTH);
         if (diagnostic_options.all_echo || diagnostic_options.echo_header) {
-            UART_Write_NText(data_header_length_u.c,DATA_HEADER_LENGTH);
+            UART_Write_NText(data_packet.data_header.c,DATA_HEADER_LENGTH);
         }
         //TODO - no idea what this is doing - needs redoing
         //return (strncmp(data,data_header,DATA_HEADER_LENGTH) ? fail : ok);
-        return ok;
-    } else {
-        return fail;
+        retval=ok;
     }
+    return retval;
 }
 
 int processCommand() {
+    int retval=fail;
     printf("processCommand");
     if (data_ready())
     {
-        UART_Read_Text(command_u.c,COMMAND_LENGTH);
+        UART_Read_Text(data_packet.command.c,COMMAND_LENGTH);
         if (diagnostic_options.all_echo || diagnostic_options.echo_command) {
-            UART_Write_NText(command_u.c,COMMAND_LENGTH);
+            UART_Write_NText(data_packet.command.c,COMMAND_LENGTH);
         }
 
-        command=command_u.i;
-
-        switch (command) {
+        switch (data_packet.command.i) {
             case CMD__DIAGNOSTICS_ALL_ECHO :
                 diagnostic_options.all_echo = true;
-                return ok;
-
+                retval=ok;
+                break;
             case CMD__DIAGNOSTICS_HEADER_ECHO :
                 diagnostic_options.echo_header = true;
-                return ok;
-
+                retval=ok;
+                break;
             case CMD__DIAGNOSTICS_COMMAND_ECHO :
                 diagnostic_options.echo_command = true;
-                return ok;
-
+                retval=ok;
+                break;
             default :
-                return fail; 
+                retval=fail; 
         }
-    } else {
-        return fail;
     }
+    return retval;
 }
 
 int processDataLength() {
+    int retval=fail;
     printf("processDataLength");
     if (data_ready())
     {
-        UART_Read_Text(data_length_header_u.c,DATA_LENGTH_HEADER);
+        UART_Read_Text(data_packet.data_header.c,DATA_LENGTH_HEADER);
         if (diagnostic_options.all_echo || diagnostic_options.echo_data_length) {
-            UART_Write_NText(data_length_header_u.c,DATA_LENGTH_HEADER);
+            UART_Write_NText(data_packet.data_header.c,DATA_LENGTH_HEADER);
         }
-        data_length = data_length_header_u.i;
         //TODO check this comparison is the correct way around
-        return ((data_length < MAX_DATA_LENGTH) ? fail : ok);
-    }else{
-        return fail;
+        retval=((data_packet.data_header.i < MAX_DATA_LENGTH) ? fail : ok);
     }
+    return retval;
 }
 
 int processData() {
     printf("processDataLength");
+    int retval=fail;
     if (data_ready())
     {
-        UART_Read_Text(data,data_length);
+        UART_Read_Text(data_packet.data,data_packet.data_length.i);
         if (diagnostic_options.all_echo || diagnostic_options.echo_data) {
-            UART_Write_NText(data, data_length);
+            UART_Write_NText(data_packet.data, data_packet.data_length.i);
         }
         // No way of easily checking how much data read.
-        return (ok);
-    }else{
-        return fail;
+        retval = ok;
     }
+    return retval;;    
 }
 
 int processChecksum() {
+    int retval=fail;
+    unsigned int x=0;
     printf("processChecksum");
     if (data_ready())
     {
-        return false;
-    }else{
-        return fail;
+        UART_Read_Text(data_packet.crc.c, CRC_LENGTH);
+        if (diagnostic_options.all_echo || diagnostic_options.echo_data) {
+            UART_Write_NText(data_packet.crc.c, CRC_LENGTH);
+        }
+        unsigned int crc_calculated = 0;
+        for (x=0; x<DATA_HEADER_LENGTH; x++) {
+            crc_calculated = crc8_update(data_packet.data_header.c[x]);
+        }
+        for (x=0; x<COMMAND_LENGTH; x++) {
+            crc_calculated = crc8_update(data_packet.command.c[x]);
+        }
+        for (x=0; x<DATA_LENGTH_HEADER; x++) {
+            crc_calculated = crc8_update(data_packet.data_length.c[x]);
+        }
+        for (x=0; x<data_packet.data_length.i; x++) {
+            crc_calculated = crc8_update(data_packet.data[x]);
+        }
+        if (crc_calculated = data_packet.crc.i) retval=ok;
     }
+    return retval;
 }
 
 int returnStatus() {
