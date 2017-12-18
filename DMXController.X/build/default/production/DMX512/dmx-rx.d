@@ -1,0 +1,1 @@
+ build/default/production/DMX512/dmx-rx.d  build/default/production/DMX512/dmx-rx.p1:  DMX512/dmx-rx.c DMX512/dmx-rx.h DMX512/dmx-main.h
