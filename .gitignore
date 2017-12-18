@@ -32,3 +32,5 @@
 *.dSYM/
 *.su
 /DMXController.X/dist/default/
+*.p1
+*.pre
