@@ -7,7 +7,7 @@
       <logicalFolder name="DMX512" displayName="DMX512" projectFiles="true">
         <itemPath>DMX512/dmx-rx.h</itemPath>
         <itemPath>DMX512/dmx-tx.h</itemPath>
-        <itemPath>DMX512/main.h</itemPath>
+        <itemPath>DMX512/dmx-main.h</itemPath>
       </logicalFolder>
       <itemPath>RS232/uart.h</itemPath>
       <itemPath>RS232/main.h</itemPath>
@@ -42,6 +42,7 @@
   <sourceRootList>
     <Elem>RS232</Elem>
     <Elem>DMX512</Elem>
+    <Elem>Linker</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -54,7 +55,7 @@
         <platformTool>Simulator</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>1.45</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -148,12 +149,6 @@
         <property key="opt-xc8-linker-serial" value=""/>
         <property key="program-the-device-with-default-config-words" value="true"/>
       </HI-TECH-LINK>
-      <MPASMWIN-LD>
-        <property key="cod-file" value="false"/>
-        <property key="extra-lib-directories" value=""/>
-        <property key="hex-output-format" value="INHX32"/>
-        <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
-      </MPASMWIN-LD>
       <Simulator>
         <property key="codecoverage.enabled" value="Disable"/>
         <property key="codecoverage.enableoutputtofile" value="false"/>
@@ -531,13 +526,6 @@
         <property key="stack-size-main" value="auto"/>
         <property key="stack-type" value="compiled"/>
       </XC8-config-global>
-      <mpasmsuite>
-        <property key="absolute-mode" value="false"/>
-        <property key="eeprom-width" value="8"/>
-        <property key="extended-mode" value="false"/>
-        <property key="extended-mode-mpasm" value="false"/>
-        <property key="extended-mode-mplink" value="false"/>
-      </mpasmsuite>
     </conf>
   </confs>
 </configurationDescriptor>
