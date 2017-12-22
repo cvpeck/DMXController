@@ -55,7 +55,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #undef SIGNED_DWORD
 
 //BOOLEAN - 1 bit:
-typedef enum _BOOL { FALSE = 0, TRUE } BOOL;
+//typedef enum _BOOL { FALSE = 0, TRUE } BOOL;
 //BYTE - 8 bit unsigned:
 typedef unsigned char BYTE;
 //SIGNED_BYTE - 8 bit signed:

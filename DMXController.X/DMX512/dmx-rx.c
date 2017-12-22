@@ -30,6 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 #include <xc.h>
+#include <plib.h>
 
 #include "dmx-main.h"					//Global data type definitions (see https://github.com/ibexuk/C_Generic_Header_File )
 #define	DMX_C

@@ -1,0 +1,393 @@
+
+
+Microchip Technology PIC18 LITE Macro Assembler V1.20 build 52243 
+                                                                                               Sun Aug 11 11:45:16 2013
+
+Microchip Technology Omniscient Code Generator (Lite mode) build 52243
+     1                           	processor	18F47J53
+     2                           	fnconf	rparam,??,?,0
+     3                           	opt	pw 120
+     4                           	opt	lm
+     5                           	psect	text0,global,reloc=2,class=CODE,delta=1
+     6                           	psect	cinit,global,reloc=2,class=CODE,delta=1
+     7                           	psect	cstackCOMRAM,global,class=COMRAM,space=1,delta=1
+     8                           	psect	text1,global,reloc=2,class=CODE,delta=1
+     9                           	psect	intsave_regs,global,class=BIGRAM,space=1,delta=1
+    10                           	psect	rparam,global,class=COMRAM,space=1,delta=1
+    11  0000                     _PIE1bits	set	3997
+    12  0000                     _PIE5bits	set	3985
+    13  0000                     _PIR1bits	set	3998
+    14  0000                     _PIR5bits	set	3992
+    15  0000                     _T1CON	set	4045
+    16  0000                     _T1CONbits	set	4045
+    17  0000                     _T1GCON	set	3994
+    18  0000                     _T1GCONbits	set	3994
+    19  0000                     _TMR1H	set	4047
+    20  0000                     _TMR1L	set	4046
+    21                           
+    22 ;;
+    23 ;;Main: autosize = 0, tempsize = 2, incstack = 0, save=0
+    24 ;;
+    25 ;; *************** function _main *****************
+    26 ;; Defined at:
+    27 ;;		line 4 in file "Main.c"
+    28 ;; Parameters:    Size  Location     Type
+    29 ;;		None
+    30 ;; Auto vars:     Size  Location     Type
+    31 ;;		None
+    32 ;; Return value:  Size  Location     Type
+    33 ;;		None               void
+    34 ;; Registers used:
+    35 ;;		wreg, status,2, status,0, cstack
+    36 ;; Tracked objects:
+    37 ;;		On entry : 0/0
+    38 ;;		On exit  : 0/0
+    39 ;;		Unchanged: 0/0
+    40 ;; Data sizes:     COMRAM   BANK0   BANK1   BANK2   BANK3   BANK4   BANK5   BANK6   BANK7   BANK8   BANK9  BANK10  BANK1
+      +1  BANK12  BANK13  BANK14
+    41 ;;      Params:         0       0       0       0       0       0       0       0       0       0       0       0       
+      +0       0       0       0
+    42 ;;      Locals:         0       0       0       0       0       0       0       0       0       0       0       0       
+      +0       0       0       0
+    43 ;;      Temps:          2       0       0       0       0       0       0       0       0       0       0       0       
+      +0       0       0       0
+    44 ;;      Totals:         2       0       0       0       0       0       0       0       0       0       0       0       
+      +0       0       0       0
+    45 ;;Total ram usage:        2 bytes
+    46 ;; Hardware stack levels required when called:    1
+    47 ;; This function calls:
+    48 ;;		_OpenTimer1
+    49 ;; This function is called by:
+    50 ;;		Startup code after reset
+    51 ;; This function uses a non-reentrant model
+    52 ;;
+    53                           
+    54                           	psect	text0
+    55  01FFA4                     __ptext0:
+    56                           	opt stack 0
+    57  01FFA4                     _main:
+    58                           	opt stack 30
+    59                           
+    60                           ;Main.c: 5: OpenTimer1( 1, 1 );
+    61                           
+    62                           ;incstack = 0
+    63                           ;incstack = 0
+    64  01FFA4  6E04               	movwf	??_main& (0+255),c
+    65  01FFA6  0E01               	movlw	1
+    66  01FFA8  6E01               	movwf	?_OpenTimer1,c
+    67  01FFAA  5004               	movf	??_main& (0+255),w,c
+    68  01FFAC  6E05               	movwf	(??_main+1)& (0+255),c
+    69  01FFAE  0E01               	movlw	1
+    70  01FFB0  6E02               	movwf	?_OpenTimer1+1,c
+    71  01FFB2  5005               	movf	(??_main+1)& (0+255),w,c
+    72  01FFB4  ECDE  F0FF         	call	_OpenTimer1	;wreg free
+    73  01FFB8  EF00  F000         	goto	start
+    74  01FFBC                     __end_of_main:
+    75                           	opt stack 0
+    76                           
+    77                           ; #config settings
+    78                           
+    79                           	psect	cinit
+    80  01FF9E                     __pcinit:
+    81                           	opt stack 0
+    82  01FF9E                     start_initialization:
+    83                           	opt stack 0
+    84  01FF9E                     __initialization:
+    85                           	opt stack 0
+    86  01FF9E                     end_of_initialization:
+    87                           	opt stack 0
+    88  01FF9E                     __end_of__initialization:
+    89                           	opt stack 0
+    90  01FF9E  0100               	movlb	0
+    91  01FFA0  EFD2  F0FF         	goto	_main	;jump to C main() function
+    92                           
+    93                           	psect	cstackCOMRAM
+    94  000001                     __pcstackCOMRAM:
+    95                           	opt stack 0
+    96  000001                     ?_OpenTimer1:
+    97                           	opt stack 0
+    98  000001                     OpenTimer1@config:
+    99                           	opt stack 0
+   100                           
+   101                           ; 1 bytes @ 0x0
+   102  000001                     	ds	1
+   103  000002                     OpenTimer1@config1:
+   104                           	opt stack 0
+   105                           
+   106                           ; 1 bytes @ 0x1
+   107  000002                     	ds	1
+   108  000003                     ??_OpenTimer1:
+   109                           
+   110                           ; 0 bytes @ 0x2
+   111  000003                     	ds	1
+   112  000004                     ??_main:
+   113                           
+   114                           ; 0 bytes @ 0x3
+   115  000004                     	ds	2
+   116                           
+   117 ;; *************** function _OpenTimer1 *****************
+   118 ;; Defined at:
+   119 ;;		line 44 in file "C:\Program Files (x86)\Microchip\xc8\v1.20\sources\pic18\plib\Timers\t1open.c"
+   120 ;; Parameters:    Size  Location     Type
+   121 ;;  config          1    0[COMRAM] unsigned char 
+   122 ;;  config1         1    1[COMRAM] unsigned char 
+   123 ;; Auto vars:     Size  Location     Type
+   124 ;;		None
+   125 ;; Return value:  Size  Location     Type
+   126 ;;		None               void
+   127 ;; Registers used:
+   128 ;;		wreg, status,2, status,0
+   129 ;; Tracked objects:
+   130 ;;		On entry : 0/0
+   131 ;;		On exit  : 0/0
+   132 ;;		Unchanged: 0/0
+   133 ;; Data sizes:     COMRAM   BANK0   BANK1   BANK2   BANK3   BANK4   BANK5   BANK6   BANK7   BANK8   BANK9  BANK10  BANK1
+      +1  BANK12  BANK13  BANK14
+   134 ;;      Params:         2       0       0       0       0       0       0       0       0       0       0       0       
+      +0       0       0       0
+   135 ;;      Locals:         0       0       0       0       0       0       0       0       0       0       0       0       
+      +0       0       0       0
+   136 ;;      Temps:          1       0       0       0       0       0       0       0       0       0       0       0       
+      +0       0       0       0
+   137 ;;      Totals:         3       0       0       0       0       0       0       0       0       0       0       0       
+      +0       0       0       0
+   138 ;;Total ram usage:        3 bytes
+   139 ;; Hardware stack levels used:    1
+   140 ;; This function calls:
+   141 ;;		Nothing
+   142 ;; This function is called by:
+   143 ;;		_main
+   144 ;; This function uses a non-reentrant model
+   145 ;;
+   146                           
+   147                           	psect	text1
+   148  01FFBC                     __ptext1:
+   149                           	opt stack 0
+   150  01FFBC                     _OpenTimer1:
+   151                           	opt stack 30
+   152                           
+   153                           ;incstack = 0
+   154                           ;incstack = 0
+   155  01FFBC  5002               	movf	OpenTimer1@config1,w,c
+   156  01FFBE  0BF3               	andlw	243
+   157  01FFC0  6E9A               	movwf	3994,c	;volatile
+   158  01FFC2  C001  F003         	movff	OpenTimer1@config,??_OpenTimer1
+   159  01FFC6  0E7F               	movlw	127
+   160  01FFC8  1603               	andwf	??_OpenTimer1,f,c
+   161  01FFCA  90D8               	bcf	status,0,c
+   162  01FFCC  3403               	rlcf	??_OpenTimer1,w,c
+   163  01FFCE  6ECD               	movwf	4045,c	;volatile
+   164  01FFD0  0E00               	movlw	0
+   165  01FFD2  6ECF               	movwf	4047,c	;volatile
+   166  01FFD4  0E00               	movlw	0
+   167  01FFD6  6ECE               	movwf	4046,c	;volatile
+   168  01FFD8  909E               	bcf	3998,0,c	;volatile
+   169  01FFDA  AE01               	btfss	OpenTimer1@config,7,c
+   170  01FFDC  D002               	goto	l28
+   171  01FFDE  809D               	bsf	3997,0,c	;volatile
+   172  01FFE0  D001               	goto	l29
+   173  01FFE2                     l28:
+   174  01FFE2  909D               	bcf	3997,0,c	;volatile
+   175  01FFE4                     l29:
+   176  01FFE4  9098               	bcf	3992,0,c	;volatile
+   177  01FFE6  A402               	btfss	OpenTimer1@config1,2,c
+   178  01FFE8  D002               	goto	l30
+   179  01FFEA  8091               	bsf	3985,0,c	;volatile
+   180  01FFEC  D001               	goto	l31
+   181  01FFEE                     l30:
+   182  01FFEE  9091               	bcf	3985,0,c	;volatile
+   183  01FFF0                     l31:
+   184  01FFF0  BE9A               	btfsc	3994,7,c	;volatile
+   185  01FFF2  869A               	bsf	3994,3,c	;volatile
+   186  01FFF4  80CD               	bsf	4045,0,c	;volatile
+   187  01FFF6  0012               	return	
+   188  01FFF8                     __end_of_OpenTimer1:
+   189                           	opt stack 0
+   190  0000                     status	equ	0xFD8
+   191                           status	equ	0xFD8
+   192                           
+   193                           	psect	rparam
+   194  0000                     status	equ	0xFD8
+
+
+Data Sizes:
+    Strings     0
+    Constant    0
+    Data        0
+    BSS         0
+    Persistent  0
+    Stack       0
+
+Auto Spaces:
+    Space          Size  Autos    Used
+    COMRAM           95      5       5
+    BANK0           160      0       0
+    BANK1           256      0       0
+    BANK2           256      0       0
+    BANK3           256      0       0
+    BANK4           256      0       0
+    BANK5           256      0       0
+    BANK6           256      0       0
+    BANK7           256      0       0
+    BANK8           256      0       0
+    BANK9           256      0       0
+    BANK10          256      0       0
+    BANK11          256      0       0
+    BANK12          256      0       0
+    BANK13          256      0       0
+    BANK14          176      0       0
+
+Pointer List with Targets:
+
+    None.
+
+Critical Paths under _main in COMRAM
+
+    _main->_OpenTimer1
+
+Critical Paths under _main in BANK0
+
+    None.
+
+Critical Paths under _main in BANK1
+
+    None.
+
+Critical Paths under _main in BANK2
+
+    None.
+
+Critical Paths under _main in BANK3
+
+    None.
+
+Critical Paths under _main in BANK4
+
+    None.
+
+Critical Paths under _main in BANK5
+
+    None.
+
+Critical Paths under _main in BANK6
+
+    None.
+
+Critical Paths under _main in BANK7
+
+    None.
+
+Critical Paths under _main in BANK8
+
+    None.
+
+Critical Paths under _main in BANK9
+
+    None.
+
+Critical Paths under _main in BANK10
+
+    None.
+
+Critical Paths under _main in BANK11
+
+    None.
+
+Critical Paths under _main in BANK12
+
+    None.
+
+Critical Paths under _main in BANK13
+
+    None.
+
+Critical Paths under _main in BANK14
+
+    None.
+
+Call Graph Tables:
+
+ ---------------------------------------------------------------------------------
+ (Depth) Function   	        Calls       Base Space   Used Autos Params    Refs
+ ---------------------------------------------------------------------------------
+ (0) _main                                                 2     2      0      60
+                                              3 COMRAM     2     2      0
+                         _OpenTimer1
+ ---------------------------------------------------------------------------------
+ (1) _OpenTimer1                                           3     1      2      60
+                                              0 COMRAM     3     1      2
+ ---------------------------------------------------------------------------------
+ Estimated maximum stack depth 1
+ ---------------------------------------------------------------------------------
+
+ Call Graph Graphs:
+
+ _main (ROOT)
+   _OpenTimer1
+
+ Address spaces:
+Name               Size   Autos  Total    Cost      Usage
+BITCOMRAM           5F      0       0       0        0.0%
+NULL                 0      0       0       0        0.0%
+CODE                 0      0       0       0        0.0%
+COMRAM              5F      5       5       1        5.3%
+STACK                0      0       1       2        0.0%
+DATA                 0      0       0       3        0.0%
+BITBANK0            A0      0       0       4        0.0%
+BANK0               A0      0       0       5        0.0%
+ABS                  0      0       0       6        0.0%
+BITBANK1           100      0       0       7        0.0%
+BANK1              100      0       0       8        0.0%
+BITBANK2           100      0       0       9        0.0%
+BANK2              100      0       0      10        0.0%
+BITBANK3           100      0       0      11        0.0%
+BANK3              100      0       0      12        0.0%
+BITBANK4           100      0       0      13        0.0%
+BANK4              100      0       0      14        0.0%
+BITBANK5           100      0       0      15        0.0%
+BANK5              100      0       0      16        0.0%
+BITBANK6           100      0       0      17        0.0%
+BANK6              100      0       0      18        0.0%
+BITBANK7           100      0       0      19        0.0%
+BANK7              100      0       0      20        0.0%
+BITBANK8           100      0       0      21        0.0%
+BANK8              100      0       0      22        0.0%
+BITBANK9           100      0       0      23        0.0%
+BANK9              100      0       0      24        0.0%
+BITBANK10          100      0       0      25        0.0%
+BANK10             100      0       0      26        0.0%
+BITBANK11          100      0       0      27        0.0%
+BANK11             100      0       0      28        0.0%
+BITBANK12          100      0       0      29        0.0%
+BANK12             100      0       0      30        0.0%
+BITBANK13          100      0       0      31        0.0%
+BANK13             100      0       0      32        0.0%
+BITBANK14           B0      0       0      33        0.0%
+BANK14              B0      0       0      34        0.0%
+BIGRAM             EAF      0       0      35        0.0%
+BITSFR_2             0      0       0      40        0.0%
+SFR_2                0      0       0      40        0.0%
+BITSFR_1             0      0       0      40        0.0%
+SFR_1                0      0       0      40        0.0%
+BITSFR               0      0       0      40        0.0%
+SFR                  0      0       0      40        0.0%
+
+
+Microchip Technology PIC18 Macro Assembler V1.20 build 52243 
+Symbol Table                                                                                   Sun Aug 11 11:45:16 2013
+
+                     l30 FFEE                       l31 FFF0                       l28 FFE2  
+                     l29 FFE4                     _main FFA4                     start 0000  
+                  ?_main 0001                    _T1CON 000FCD                    _TMR1H 000FCF  
+                  _TMR1L 000FCE                    status 000FD8          __initialization FF9E  
+           __end_of_main FFBC                   ??_main 0004            __activetblptr 000000  
+                 _T1GCON 000F9A               _OpenTimer1 FFBC         OpenTimer1@config 0001  
+             __accesstop 0060  __end_of__initialization FF9E           __pcstackCOMRAM 0001  
+            ?_OpenTimer1 0001                  __Hparam 0000                  __Lparam 0000  
+                __pcinit FF9E                  __ramtop 0F00      __size_of_OpenTimer1 003C  
+                __ptext0 FFA4                  __ptext1 FFBC        OpenTimer1@config1 0002  
+              _T1CONbits 000FCD     end_of_initialization FF9E      start_initialization FF9E  
+           ??_OpenTimer1 0003       __end_of_OpenTimer1 FFF8                 _PIE1bits 000F9D  
+               _PIE5bits 000F91                 _PIR1bits 000F9E                 _PIR5bits 000F98  
+               __Hrparam 0000                 __Lrparam 0000               _T1GCONbits 000F9A  
+          __size_of_main 0018  
