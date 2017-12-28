@@ -5,6 +5,7 @@
  * Created on March 18, 2017, 9:39 AM
  */
 
+#include "config.h"
 
 #include <xc.h>
 #include <stdbool.h>
