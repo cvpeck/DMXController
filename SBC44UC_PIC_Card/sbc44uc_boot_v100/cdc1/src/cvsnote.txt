@@ -1,0 +1,2 @@
+After fresh checkout run ant. This will check out all required mxlibansi
+to the mxlib and mxdefs folders.

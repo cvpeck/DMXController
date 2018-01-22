@@ -1,0 +1,5 @@
+Demo version is available from http://www.microchip.com
+
+
+Minimum Required: 2.30.01+
+Recommended: 2.40+

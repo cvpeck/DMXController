@@ -1,0 +1,354 @@
+// MPUSBWinAPI Library
+// MPUSBAPI.H -- MCHPUSB code definitions for mchpusb driver
+// Copyright (C) 2004 by Microchip Technology, Inc.
+// All rights reserved
+
+#include <stdio.h>
+
+#include "windows.h"
+#include "string.h"
+#include "setupapi.h"
+#include "initguid.h"
+#include "winioctl.h"
+#include "ioctls.h"
+#include "mpusbapi.h"
+
+#pragma argsused
+int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void* lpReserved)
+{
+    return 1;
+}
+
+DWORD MPUSBGetDeviceCount(PCHAR pVID_PID)
+{
+    DWORD count;        // Number of USB device with matching VID & PID
+    count = 0;          // Initialization
+
+    for(int i = 0; i < MAX_NUM_MPUSB_DEV; i++)
+    {
+        if(MPUSBGetDeviceLink(i,pVID_PID,NULL,NULL,NULL) == MPUSB_SUCCESS)
+            count++;
+        else
+            break;
+    }//end for
+    return count;
+}//end MPUSBGetDeviceCount
+
+DWORD MPUSBGetDeviceLink(DWORD instance,    // Input
+                         PCHAR pVID_PID,    // Input
+                         PCHAR pPath,       // Output
+                         DWORD dwLen,       // Input
+                         PDWORD pLength)    // Output
+{
+    if(pLength != NULL)*pLength = 0;        // Initialization
+
+    HDEVINFO info = SetupDiGetClassDevs((LPGUID)&GUID_DEVINTERFACE_MCHPUSB,
+                                        NULL,
+                                        NULL,
+                                        DIGCF_PRESENT|DIGCF_DEVICEINTERFACE);
+    if(info==INVALID_HANDLE_VALUE)
+	{
+        SetupDiDestroyDeviceInfoList(info);
+		return MPUSB_DEV_NO_INFO;
+	}// end if
+
+	// Get interface data for the requested instance
+	SP_DEVICE_INTERFACE_DATA intf_data;
+	intf_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
+
+	if(!SetupDiEnumDeviceInterfaces(info,
+                                    NULL,
+                                    (LPGUID)&GUID_DEVINTERFACE_MCHPUSB,
+                                    instance,
+                                    &intf_data))
+	{
+		SetupDiDestroyDeviceInfoList(info);
+		return MPUSB_DEV_INVALID_INST;
+	}// end if
+
+	// Get size of symbolic link
+	DWORD ReqLen;
+	SetupDiGetDeviceInterfaceDetail(info, &intf_data, NULL, 0, &ReqLen, NULL);
+
+	PSP_DEVICE_INTERFACE_DETAIL_DATA intf_detail = \
+    (PSP_DEVICE_INTERFACE_DETAIL_DATA)(new char[ReqLen]);
+
+	if( intf_detail == NULL)
+	{
+		SetupDiDestroyDeviceInfoList(info);
+        delete intf_detail;
+		return MPUSB_DEV_NO_INFO;
+	}// end if
+
+    // Get symbolic link name
+	intf_detail->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
+    // sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA) should equals 5.
+    // In C++ Builder, go to Project/Options/Advanced Compiler/Data Alignment
+    // and select "byte" align.
+
+	if(!SetupDiGetDeviceInterfaceDetail(info,
+                                        &intf_data,
+                                        intf_detail,
+                                        ReqLen,
+                                        NULL,
+                                        NULL))
+	{
+		SetupDiDestroyDeviceInfoList(info);
+		delete intf_detail;
+		return MPUSB_DEV_NO_INFO;
+	}// end if
+
+    // Check for a valid VID&PID - if argument is not null)
+    if(pVID_PID != NULL)
+    {
+        if(strstr(intf_detail->DevicePath, pVID_PID) == NULL)
+        {
+            SetupDiDestroyDeviceInfoList(info);
+		    delete intf_detail;
+		    return MPUSB_DEV_VIDPID_NOT_FOUND;
+        }// end if
+    }// end if
+
+	// Set the length of the path string
+	if(pLength != NULL)
+        *pLength = strlen(intf_detail->DevicePath);
+
+    // Copy output string path to buffer pointed to by pPath
+    if(pPath != NULL)
+    {
+        // Check that input buffer has enough room...
+        // Use > not >= because strlen does not include null
+        if(dwLen > strlen(intf_detail->DevicePath))
+	        strcpy(pPath, intf_detail->DevicePath);
+        else
+        {
+            SetupDiDestroyDeviceInfoList(info);
+            delete intf_detail;
+            return MPUSB_FAIL;
+        }// end if
+    }// end if
+
+	// Clean up
+	SetupDiDestroyDeviceInfoList(info);
+	delete intf_detail;
+	return MPUSB_SUCCESS;
+
+}// end MPUSBGetDeviceLink
+
+HANDLE MPUSBOpen(DWORD instance,    // Input
+                 PCHAR pVID_PID,    // Input
+                 PCHAR pEP,         // Input
+                 DWORD dwDir,       // Input
+                 DWORD dwReserved)  // Input <Future Use>
+{
+    char path[MAX_PATH];
+    DWORD dwReqLen;
+
+    HANDLE handle;
+    handle = INVALID_HANDLE_VALUE;
+
+    // Check arguments first
+    if((pVID_PID != NULL) && ((dwDir == MP_WRITE) || (dwDir == MP_READ)))
+    {
+        if(MPUSBGetDeviceLink(instance,pVID_PID,path,MAX_PATH,&dwReqLen)==\
+            MPUSB_SUCCESS)
+        {
+            char path_io[MAX_PATH];
+            strcpy(path_io,path);
+            if(pEP != NULL) strcat(path_io,pEP);
+
+            // Setup Options: i.e. OVERLAPPED.
+
+            if(dwDir == MP_READ)
+            {
+                handle = CreateFile(path_io,
+		                            GENERIC_READ,
+                                    0,
+                                    NULL,
+                                    OPEN_EXISTING,
+                                    FILE_ATTRIBUTE_NORMAL,
+                                    NULL);
+            }
+            else
+            {
+                handle = CreateFile(path_io,
+		                            GENERIC_WRITE,
+                                    0,
+                                    NULL,
+                                    OPEN_EXISTING,
+                                    FILE_ATTRIBUTE_NORMAL,
+                                    NULL);
+            }//end if
+        }//end if
+    }//end if
+    return handle;
+}//end MPUSBOpen(...)
+
+DWORD MPUSBGetDeviceDescriptor(HANDLE handle,       // Input
+                               PVOID pDevDsc,       // Output
+                               DWORD dwLen,         // Input
+                               PDWORD pLength)      // Output
+{
+    GET_DESCRIPTOR_PARAMETER dscParam;
+
+    if(pLength != NULL)*pLength = 0;
+    //if(pDevDsc == NULL) return MPUSB_FAIL;
+
+    dscParam.bType =  USB_DEVICE_DESCRIPTOR_TYPE;
+    if(!DeviceIoControl(handle,
+                        IOCTL_MCHPUSB_GET_DESCRIPTOR,
+                        &dscParam,
+                        sizeof(GET_DESCRIPTOR_PARAMETER),
+                        pDevDsc,
+                        dwLen,
+                        pLength,
+                        NULL))
+    {
+        printf("Get dsc error: %d",GetLastError());
+        return MPUSB_FAIL;
+    }//end if
+
+    return MPUSB_SUCCESS;
+
+}// MPUSBGetDeviceDescriptor
+
+DWORD MPUSBGetConfigInfoSize(HANDLE handle)
+{
+    DWORD config_size;
+    DWORD dwReqLen;
+    DeviceIoControl(handle,
+                    IOCTL_MCHPUSB_GET_CONFIGURATION_INFO,
+                    NULL,
+                    0,
+                    &config_size,
+                    sizeof(DWORD),
+                    &dwReqLen,
+                    NULL);
+    return config_size;
+}//end MPUSBGetConfigInfoSize
+
+DWORD MPUSBGetConfigInfo(HANDLE handle,         // Input
+                         PVOID pData,           // Output
+                         DWORD dwLen)           // Input
+{
+    DWORD dwReqLen;
+    if(!DeviceIoControl(handle,
+                        IOCTL_MCHPUSB_GET_CONFIGURATION_INFO,
+                        NULL,
+                        0,
+                        pData,
+                        dwLen,
+                        &dwReqLen,
+                        NULL))
+    {
+        printf("Get config error: %d",GetLastError());
+        return MPUSB_FAIL;
+    }//end if
+
+    return MPUSB_SUCCESS;
+}//end MPUSBGetConfigInfo
+
+void MPUSBSendControl(void)
+{
+}
+
+void MPUSBGetControl(void)
+{
+}
+
+DWORD MPUSBRead(HANDLE handle,      // Input
+                PVOID pData,        // Output
+                DWORD dwLen,        // Input
+                PDWORD pLength,     // Output
+                DWORD dwReserved)   // Input
+{
+    DWORD bytesRead;
+
+    if(pLength != NULL)*pLength = 0;
+    //if(pData == NULL) return false;
+    if(ReadFile(handle,pData,dwLen,&bytesRead,NULL))
+    {
+        if(pLength != NULL)
+            *pLength = bytesRead;
+    }
+    else
+    {
+        return MPUSB_FAIL;
+    }//end if
+
+    return MPUSB_SUCCESS;
+}//end MPUSBReadBulk
+
+DWORD MPUSBWrite(HANDLE handle,     // Input
+                 PVOID pData,       // Output
+                 DWORD dwLen,       // Input
+                 PDWORD pLength,    // Output
+                 DWORD dwReserved)  // Input
+{
+    DWORD bytesWritten;
+
+    if(pLength != NULL)*pLength = 0;
+    //if(pData == NULL) return false;
+
+    //dwLen should be larger than the endpoint buffer size.
+    if(WriteFile(handle,pData,dwLen,&bytesWritten,NULL))
+    {
+        if(pLength != NULL)
+            *pLength = bytesWritten;
+    }
+    else
+    {
+        return MPUSB_FAIL;
+    }//end if
+
+    return MPUSB_SUCCESS;
+}//end MPUSBWriteBulk
+
+DWORD MPUSBReadInt(HANDLE handle,       // Input
+                   PVOID pData,         // Output
+                   DWORD dwLen,         // Input
+                   PDWORD pLength,      // Output
+                   DWORD dwReserved)    // Input
+{
+    DWORD bytesRead;
+
+    if(pLength != NULL)*pLength = 0;
+    //if(pData == NULL) return false;
+    if(DeviceIoControl(handle,
+                       IOCTL_MCHPUSB_WAIT_INTERRUPT,
+                       NULL,
+                       0,
+                       pData,
+                       dwLen,
+                       &bytesRead,
+                       NULL))
+    {
+        if(pLength != NULL)
+            *pLength = bytesRead;
+    }
+    else
+    {
+        return MPUSB_FAIL;
+    }//end if
+
+    return MPUSB_SUCCESS;
+}//end MPUSBReadInt
+
+
+BOOL MPUSBClose(HANDLE handle)
+{
+    BOOL toReturn;
+    toReturn = true;
+
+    if(handle != INVALID_HANDLE_VALUE)
+        toReturn = CloseHandle(handle);
+	return toReturn;
+}//end MPUSBClose(...)
+
+
+
+
+
+
+//---------------------------------------------------------------------------
+ 

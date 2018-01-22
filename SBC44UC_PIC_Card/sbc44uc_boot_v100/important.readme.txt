@@ -1,0 +1,69 @@
+Release Notes for USB Firmware Reference Projects,
+Microchip Technology Inc.
+
+19 November 2004
+
+Folder names in this file were Modified by Modtronix Engineering on
+15 June 2007
+
+----------------------------------------------------------------------
+1. The following Reference Projects are setup to be used with a bootloader
+----------------------------------------------------------------------
+When opening an example, always open the workspace file (*.mcw)
+
+The following examples in this directory have been setup to
+work with a bootloader.
+- LEDFLASH1
+
+Basic Assumptions:
+
+* The bootloader has remapped the reset and interrupt vectors to
+  address 0x0800,0x0808, and 0x0818.
+
+* A modified linker script file with a boot section is used.
+  The file is rm18f4550.lkr, and is located in each example's directory.
+
+----------------------------------------------------------------------
+
+If you have an ICD2 and are not planning to use the bootloader, you
+must do the following modifications to each project:
+
+1. In the MPLAB project, change the rm18f4550.lkr to a standard
+   18f4550.lkr, which can be found in the default C18 lkr directory.
+
+2. Update the default linker path in MPLAB by clicking on
+   Project\Build Options...\Project, click on the 'General' tab
+   and update the linker path to use the C18 default linker directory.
+
+3. Remove the following code from the Vector Remapping Section:
+
+   extern void _startup (void); // See c018i.c in your C18 compiler dir
+   #pragma code _RESET_INTERRUPT_VECTOR = 0x000800
+   void _reset (void)
+   {
+       _asm goto _startup _endasm
+   }
+   #pragma code
+
+   The Vector Remapping section is typically found in main.c.
+
+4. This step is optional. Disable the Table Write Protect Boot.
+   In MPLAB, click Configure\Configuration Bits...
+   Under address 0x30000B, disable Table Write Protect Boot.
+
+----------------------------------------------------------------------
+2. Programming a different hex file using the bootloader
+----------------------------------------------------------------------
+
+Each project's hex file can be found in the '_output' directory,
+i.e. CDC\_output, Demo\_output.
+
+* Launch PDFSUSB.exe
+* Insert Bootloader Jumper (see Modtronix SBC44UC Documentation) and connect
+  the demo board to a PC to enter Bootload mode. LED on board will flash
+  fast (about 10 times per second).
+* Click 'Load HEX File' to select a hex file from an '_output' directory
+* Click 'Program Device'
+* Reset the demo board to run the new program
+
+----------------------------------------------------------------------

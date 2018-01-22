@@ -36,3 +36,4 @@
 *.pre
 /DMXController.X/nbproject/private
 *.d
+/nbproject/private/

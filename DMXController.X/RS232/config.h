@@ -74,7 +74,7 @@
 #pragma config CP3 = OFF        // Code Protection bit (Block 3 (006000-007FFFh) is not code-protected)
 
 // CONFIG5H
-#pragma config CPB = OFF        // Boot Block Code Protection bit (Boot block (000000-0007FFh) is not code-protected)
+#pragma config CPB = ON        // Boot Block Code Protection bit (Boot block (000000-0007FFh) is not code-protected)
 #pragma config CPD = OFF        // Data EEPROM Code Protection bit (Data EEPROM is not code-protected)
 
 // CONFIG6L

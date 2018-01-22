@@ -1,0 +1,39 @@
+
+----------------------------------------------------------------------
+Note on USB Vendor ID and Product ID:
+----------------------------------------------------------------------
+
+Each USB product must have a unique combination of Vendor ID (VID)
+and Product ID (PID). Every example in the 'fw' directory uses
+Microchip's VID (0x04d8) and a unique PID.
+
+To change the VID and PID, you must update the IDs in both the
+firmware and the INF file where applicable.
+
+----------------------------------------------------------------------
+Updating VID & PID in the firmware:
+----------------------------------------------------------------------
+
+* VID & PID are stored in usbdsc.c, which can be located under
+  the 'autofiles' folder of each project.
+* Search for 'Vendor ID' and 'Product ID'.
+* Modify both values as needed.
+
+----------------------------------------------------------------------
+Updating VID & PID in the INF file:
+----------------------------------------------------------------------
+
+Some examples require the use of an INF during device installation.
+Each INF contains a list of VID and PID. The IDs listed in the INF
+file must match the IDs reported by each device for an installation
+to be successful.
+
+The INF files in the following folders may need to be updated:
+
+C:\MCHPFSUSB\fw\CDC\inf\win2k_winxp
+C:\MCHPFSUSB\PC\MCHPUSB Driver\Debug
+C:\MCHPFSUSB\PC\MCHPUSB Driver\Release
+
+The IDs are listed under the [DeviceList] section.
+
+----------------------------------------------------------------------

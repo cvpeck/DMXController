@@ -1,0 +1,66 @@
+<html>
+<head>
+<title>Modtronix SBC44UC board</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<style type="text/css">
+UL {margin-top:4px; margin-bottom:4px;}
+</style>
+</head>
+
+<body>
+
+This download contains the bootloader firmware (BOOT1) and example projects that can
+be loaded onto the SBC44UC USB board (from Modtronix Engineering) via the bootloader
+PC program. No PIC programmer is required.
+Each project's hex file can be found in the '_output'
+directory,
+<br>i.e. <i>flash1\_output</i>, <i>Demo\_output</i>.
+<br>The projects can all be modified and
+compiled using the free MPLAB IDE and MPLAB C18 C compiler from Microchip.
+
+<p>To programming the SBC44UC with an example bootloader project
+<ul>
+<li>Launch PDFSUSB.exe</li>
+<li>Insert Bootloader Jumper (see Modtronix SBC44UC Documentation) and connect
+    the demo board to a PC to enter Bootload mode. LED on board will flash
+   fast (about 10 times per second).</li>
+<li>Click 'Load HEX File' to select a hex file from an '_output' directory</li>
+<li>Click 'Program Device'</li>
+<li>Reset the demo board to run the new program</li>
+</ul>
+
+<p><b>===== BOOT1 =====</b><br>
+This project contains the code for the bootloader supplied with the
+SBC44UC. It is a modified version of the Microchip Bootloader. For
+details, see the "Bootloader" section on
+<a target=_blank href="http://www.modtronix.com/info/microchip_fsusb">Microchip's web site</a>.
+For details on using the bootloader, see documentation for the <i>PICDEM FS-USB</i> on
+<a target=_blank href="http://www.modtronix.com/info/microchip_fsusb">Microchip's web site</a>.
+<p>To compile the project, do the following:
+<ul>
+<li>Install Microchip's Free <a target=_blank href="http://www.modtronix.com/info/microchip_mplab">MPLAB IDE</a></li>
+<li>Install Microchip's Free <a target=_blank href="http://www.modtronix.com/info/mplabc18">MPLAB C18 Compiler</a></li>
+<li>Start the MPLAB IDE, and open the <i>boot1.mcw</i> workspace in the <i>boot1</i> folder.</li>
+<li>Click on <i>Build All</i> button. This will create the hex file in the <i>_output</i> folder</li>
+</ul>
+
+<p><b>===== FLASH1 =====</b><br>
+This project contains a very simple application that can be uploaded to
+the SBC44UC via the Bootloader. It simply flashes the system LED.
+
+<p><b>===== CDC1 =====</b><br>
+This project contains 2 examples that both implement a virtual serial port.
+It is a modified version of the Microchip "Communication Device Class (CDC) firmware".
+Windows drivers are located in the <i>cdc1\src\inf</i>.
+For details, see the "CDC" section on
+<a target=_blank href="http://www.modtronix.com/info/microchip_fsusb">Microchip's web site</a>.
+This firmware provides direct emulation of a serial port on a PC. As the SBC44UC is attached
+to the PC, a virtual COMx port is created. All PC software using a COM1-4 port will work
+without modifications with the virtual COM port if only at a much higher speed (approx 1Mbit/s).
+For these examples, the serial port settings of the PC are:
+<br><i>115200 kbits/sec, 1 stop bit, no parity, no handshaking</i><br>
+See Microchip Application Note AN956 for details.
+<p>Example 1 writes the text "Hello World" to the virtual serial port every second.
+<p>Example 2 Echos "Received: x" showing the character received via the virtual serial port.
+</body>
+
