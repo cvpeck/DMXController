@@ -1,7 +1,5 @@
 # Object files
-*.o
 *.ko
-*.obj
 *.elf
 
 # Precompiled Headers
@@ -9,7 +7,6 @@
 *.pch
 
 # Libraries
-*.lib
 *.a
 *.la
 *.lo
@@ -29,8 +26,6 @@
 *.dSYM/
 *.su
 /DMXController.X/dist/default/
-*.p1
-*.pre
 /DMXController.X/nbproject/private
 *.d
 /nbproject/private/
